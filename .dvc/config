@@ -1,0 +1,5 @@
+[core]
+    remote = images
+['remote "images"']
+    url = azure://imagedata
+    account_name = superresolution
