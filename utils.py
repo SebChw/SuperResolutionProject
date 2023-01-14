@@ -1,7 +1,21 @@
 from pathlib import Path
 import pandas as pd
 
-def collect_paths(data_path, prefix, downscalings, scaling_factors, merge_inputs=False, patches = ""):
+def collect_paths(data_path, prefix, downscalings=["unknown"], scaling_factors=[2,3,4], merge_inputs=False, patches = ""):
+    """This function iterates over all HR images and find corresponding LR images at the end it returns data frame
+       Where this paths are connected
+
+    Args:
+        data_path (str): path to main folder with data
+        prefix (str): prefix of the data folder like, e.g DIV2K_train if we are interested in training data
+        downscalings (list): which downscaling to gather, e.g ["unknown", "bicubic"] It's just used for a path creation
+        scaling_factors (list): list with scaling factors e.g [2,4] used for path creations 
+        merge_inputs (bool, optional): whether to create n separate rows or one row with list of n elements as a entry. Defaults to False.
+        patches (str, optional): additional suffix to data folder. Defaults to "".
+
+    Returns:
+        pd.DataFrame
+    """
     #! THIS patches variable is just to add _patches prefix if needed.
     targets = []
     inputs = []
