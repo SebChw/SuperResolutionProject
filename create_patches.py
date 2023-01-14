@@ -32,6 +32,7 @@ for id, row in data_df.iterrows():
     target_path = Path(target_path)
 
     # Here we automatically create all possible bounding boxes for target image
+    #TODO test if possible
     all_boxes = np.array([0,0,PATCH_SIZE,PATCH_SIZE]) + (np.array([[STEP_SIZE,0,STEP_SIZE,0]]) * np.expand_dims(np.arange(target_img.shape[0] // STEP_SIZE - 1),1))
     all_boxes = all_boxes[None, ...] + (np.array([[0,STEP_SIZE,0,STEP_SIZE]]) * np.expand_dims(np.arange(target_img.shape[0] // STEP_SIZE - 1),1))[:,None,:]
     all_boxes = all_boxes.reshape(-1,4)
