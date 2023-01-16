@@ -1,5 +1,4 @@
 [core]
-    remote = images
-['remote "images"']
-    url = azure://imagedata
-    account_name = superresolution
+    remote = gdrive
+['remote "gdrive"']
+    url = gdrive://1H5fP1QgalcKmUn99NDIqqCCKSS-j3V35
