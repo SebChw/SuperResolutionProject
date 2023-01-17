@@ -3,6 +3,8 @@ import argparse
 import cv2
 from pathlib import Path
 import numpy as np
+
+
 def plot_patches_randomly(config : dict):
     cv2.namedWindow('patches', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('patches', 400,500)

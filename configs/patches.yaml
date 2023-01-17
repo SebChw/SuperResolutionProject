@@ -1,7 +1,8 @@
-patch_size: 96
-step_size: 44
+patch_size: 192 # in SRCNN they've used 33x33 (overlapping) in SRGAN 96x96, we go even further
+step_size: 192 #also with such small patch sizes and overlapping windows we've got enormous amount of images.
+#since cnns are translation invariant these overlaps seems not to make much sense.
 data_root: data
-prefix: DIV2K_train_
-downscaling_types: [unknown]
-scaling_factors: [2,3,4]
-new_suffix: _patches
+prefix: DIV2K_train_ # based on this paths are created
+downscaling_types: [unknown] # based on this paths are created
+scaling_factors: [2,3,4] # based on this paths are created
+new_suffix: _patches # based on this paths are created
