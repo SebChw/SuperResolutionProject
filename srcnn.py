@@ -6,9 +6,11 @@ import pytorch_lightning as pl
 from sr_dataset import SRDataset
 from torchmetrics import PeakSignalNoiseRatio,StructuralSimilarityIndexMeasure
 from pytorch_lightning.loggers import NeptuneLogger
+
 """
 Here we have very simple SR model and very basic Lightning pipeline
 """
+
 #! key returned by this i wrong I had to copy it from env variable to make it work!
 from neptune.new import ANONYMOUS_API_TOKEN
 neptune_logger = NeptuneLogger(
@@ -103,3 +105,4 @@ model = LitSRCNN()
 trainer = pl.Trainer(accelerator="gpu", devices=1, precision=16, logger=neptune_logger)
 trainer.fit(model, train_loader, val_loader)
     
+#TODO take a few random images from traindataset and create before -> after

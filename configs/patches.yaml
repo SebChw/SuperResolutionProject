@@ -1,0 +1,7 @@
+patch_size: 96
+step_size: 44
+data_root: data
+prefix: DIV2K_train_
+downscaling_types: [unknown]
+scaling_factors: [2,3,4]
+new_suffix: _patches
