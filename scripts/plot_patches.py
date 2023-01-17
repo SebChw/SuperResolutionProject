@@ -6,11 +6,11 @@ import numpy as np
 
 
 def plot_patches_randomly(config : dict):
-    cv2.namedWindow('patches', cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('patches', 400,500)
+    # cv2.namedWindow('patches', cv2.WINDOW_NORMAL)
+    # cv2.resizeWindow('patches', 400,500)
 
     hr_folder = Path(config['data_root']) / Path(f"{config['prefix']}HR{config['new_suffix']}{config['patch_size']}")
-    num_hr_patches = 1300
+    num_hr_patches = 50
     img = "0001"
     while True:
         random_patch = np.random.choice(num_hr_patches, 1)[0]
@@ -24,7 +24,7 @@ def plot_patches_randomly(config : dict):
             lr_path = lr_folder / f"{img}_{random_patch}x{scale_factor}.png"
             lr_image = cv2.imread(str(lr_path))
             background = np.zeros((hr.shape[0], lr_image.shape[1], 3), dtype=np.uint8)
-            background[0:lr_image.shape[0]] = lr_image
+            background[:lr_image.shape[0]] = lr_image
             
             images.append(background)
 

@@ -6,15 +6,14 @@ import pytorch_lightning as pl
 from sr_dataset import SRDataset
 from torchmetrics import PeakSignalNoiseRatio,StructuralSimilarityIndexMeasure
 from pytorch_lightning.loggers import NeptuneLogger
+from custom_callbacks import ImageLoggingCallback
 
+from utils import cut_tensor_from_0_to_1
 """
 Here we have very simple SR model and very basic Lightning pipeline
 """
 
-#! key returned by this i wrong I had to copy it from env variable to make it work!
-from neptune.new import ANONYMOUS_API_TOKEN
 neptune_logger = NeptuneLogger(
-    api_key=ANONYMOUS_API_TOKEN,
 	project="skdbmk/superresolution",
     tags=["training", "srcnn"],  # optional
 )
@@ -88,13 +87,14 @@ class LitSRCNN(pl.LightningModule):
 		self.valid_psnr(sr_x, y)
 		self.log('valid_psnr', self.valid_psnr, on_step=True, on_epoch=True)
 		#! ssim seems to work quite bad
-		self.valid_ssim(sr_x.to(torch.float32), y) #ssim seems not to work when y is float 16
+
+		self.valid_ssim(cut_tensor_from_0_to_1(sr_x).to(torch.float32), y) #ssim seems not to work when y is float 16
 		self.log('valid_ssim', self.valid_ssim, on_step=True, on_epoch=True)
 
-trainset = SRDataset(return_scaling_factor=False, perform_bicubic=True, patches="_patches")
+trainset = SRDataset(return_scaling_factor=False, perform_bicubic=True, patches="_patches192")
 validset = SRDataset(train=False, return_scaling_factor=False, perform_bicubic=True)
 
-
+#TODO I observed small GPU Utilization probably n_workers could be set automatically?
 train_loader = DataLoader(trainset, batch_size=32)
 val_loader = DataLoader(validset, batch_size=1) #! here we evaluate work on big images!
 
