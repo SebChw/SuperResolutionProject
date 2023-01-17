@@ -102,7 +102,7 @@ val_loader = DataLoader(validset, batch_size=1) #! here we evaluate work on big 
 model = LitSRCNN()
 
 # training
-trainer = pl.Trainer(accelerator="gpu", devices=1, precision=16, logger=neptune_logger)
+trainer = pl.Trainer(accelerator="gpu", devices=1, precision=16, logger=neptune_logger, callbacks=[ImageLoggingCallback()], val_check_interval=0.25)
 trainer.fit(model, train_loader, val_loader)
     
 #TODO take a few random images from traindataset and create before -> after
