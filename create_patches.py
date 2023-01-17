@@ -7,14 +7,20 @@ import yaml
 
 def save_patch(img, box, path):
     x1,y1,x2,y2 = box
-    cv2.imwrite(path, img[y1:y2, x1:x2])
+    if y2 <= img.shape[0] and x2 <= img.shape[1]:
+        cv2.imwrite(path, img[y1:y2, x1:x2])
+    else:
+        offset_x =  x2 - img.shape[1] if x2 > img.shape[1] else 0
+        offset_y = y2 - img.shape[0] if y2 > img.shape[0] else 0
+        cv2.imwrite(path, img[y1-offset_y:y2-offset_y, x1-offset_x:x2-offset_x])
+
 
 def cut_patches(config):
     PATCH_SIZE = config['patch_size']
-    STEP_SIZE = config[' step_size']
+    STEP_SIZE = config['step_size']
     DATA_ROOT = config['data_root']
     PREFIX = config['prefix']
-    DOWNSAMPLIN_TYPES = config[' downscaling_types']
+    DOWNSAMPLIN_TYPES = config['downscaling_types']
     SCALING_FACTORS = config['scaling_factors']
     NEW_SUFFIX = f"{config['new_suffix']}{PATCH_SIZE}"
 
@@ -39,12 +45,15 @@ def cut_patches(config):
         target_path = Path(target_path)
 
         # Here we automatically create all possible bounding boxes for target image
-        #TODO test if possible
-        all_boxes = np.array([0,0,PATCH_SIZE,PATCH_SIZE]) + (np.array([[STEP_SIZE,0,STEP_SIZE,0]]) * np.expand_dims(np.arange(target_img.shape[1] // STEP_SIZE - 1),1))
-        all_boxes = all_boxes[None, ...] + (np.array([[0,STEP_SIZE,0,STEP_SIZE]]) * np.expand_dims(np.arange(target_img.shape[0] // STEP_SIZE - 1),1))[:,None,:]
+        #!with this CEIL there will be one window that actually may be too big! and go over the image
+        # this must be handled later by creating an offset
+        all_boxes = np.array([0,0,PATCH_SIZE,PATCH_SIZE]) +\
+            (np.array([[STEP_SIZE,0,STEP_SIZE,0]]) * np.expand_dims(np.arange(int(np.ceil(target_img.shape[1] / STEP_SIZE))),1)) 
+        all_boxes = all_boxes[None, ...] +\
+            (np.array([[0,STEP_SIZE,0,STEP_SIZE]]) * np.expand_dims(np.arange(int(np.ceil(target_img.shape[0] / STEP_SIZE))),1))[:,None,:]
         all_boxes = all_boxes.reshape(-1,4)
 
-        assert all_boxes.shape[0] == (target_img.shape[0] // STEP_SIZE -1) * (target_img.shape[1] // STEP_SIZE -1)
+        assert all_boxes.shape[0] == np.ceil(target_img.shape[0] / STEP_SIZE) * np.ceil(target_img.shape[1] / STEP_SIZE)
         #We will save them in a folder with same name but _patches suffix
         destination = Path(str(target_path.parent) + NEW_SUFFIX)
 
