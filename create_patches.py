@@ -33,10 +33,11 @@ for id, row in data_df.iterrows():
 
     # Here we automatically create all possible bounding boxes for target image
     #TODO test if possible
-    all_boxes = np.array([0,0,PATCH_SIZE,PATCH_SIZE]) + (np.array([[STEP_SIZE,0,STEP_SIZE,0]]) * np.expand_dims(np.arange(target_img.shape[0] // STEP_SIZE - 1),1))
+        all_boxes = np.array([0,0,PATCH_SIZE,PATCH_SIZE]) + (np.array([[STEP_SIZE,0,STEP_SIZE,0]]) * np.expand_dims(np.arange(target_img.shape[1] // STEP_SIZE - 1),1))
     all_boxes = all_boxes[None, ...] + (np.array([[0,STEP_SIZE,0,STEP_SIZE]]) * np.expand_dims(np.arange(target_img.shape[0] // STEP_SIZE - 1),1))[:,None,:]
     all_boxes = all_boxes.reshape(-1,4)
 
+        assert all_boxes.shape[0] == (target_img.shape[0] // STEP_SIZE -1) * (target_img.shape[1] // STEP_SIZE -1)
     #We will save them in a folder with same name but _patches suffix
     destination = Path(str(target_path.parent) + "_patches")
 
