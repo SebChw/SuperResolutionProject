@@ -55,7 +55,7 @@ class Trainer:
             train=False, return_scaling_factor=False, perform_bicubic=config['pre_sampling'])
 
         # TODO I observed small GPU Utilization probably n_workers could be set automatically?
-        train_loader = DataLoader(trainset, batch_size=32)
+        train_loader = DataLoader(trainset, batch_size=32, shuffle=True)
         # ! here we evaluate work on big images!
         val_loader = DataLoader(validset, batch_size=1)
         return train_loader, val_loader
