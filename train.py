@@ -7,6 +7,7 @@ from srcnn import LitSRCNN
 from sr_dataset import SRDataset
 
 from torch.utils.data import DataLoader
+import torch
 
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import NeptuneLogger
@@ -34,11 +35,11 @@ class Trainer:
         model = self.architecture()
         trainer = pl.Trainer(accelerator="gpu", devices=1,
                              precision=16, logger=self.neptune_logger, callbacks=[
-                                 ImageLoggingCallback()], default_root_dir=f"model_checkpoints/{self.architecture.__name__}")
+                                 ImageLoggingCallback()], default_root_dir=f"model_checkpoints/{self.architecture.__name__}", max_epochs=5)
         trainer.fit(model, train_loader, val_loader)
-        # model.model.set_swish(memory_efficient=False)
+        # input_sample = torch.randn((192,192,3))
         # model.to_onnx(
-        #     f"model_{self.architecture.__name__}.onnx", export_params=True)
+        #     f"model_{self.architecture.__name__}.onnx", input_sample, export_params=True)
         # TODO take a few random images from traindataset and create before -> after    
 
     def parse_args(self, config):
