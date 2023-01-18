@@ -7,6 +7,7 @@ import yaml
 
 
 def save_patch(img, box, path):
+    #! For future this would be much, much better if patches were saved as a binary files!
     x1,y1,x2,y2 = box
     if y2 <= img.shape[0] and x2 <= img.shape[1]:
         cv2.imwrite(path, img[y1:y2, x1:x2])
