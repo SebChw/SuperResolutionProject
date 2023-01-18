@@ -1,2 +1,8 @@
 architecture: srcnn
 batch_size: 32
+
+pre_sampling: True
+
+model_parameters:
+  augment_train: true
+  loss: L2

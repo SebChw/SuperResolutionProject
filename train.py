@@ -12,34 +12,32 @@ import pytorch_lightning as pl
 from pytorch_lightning.loggers import NeptuneLogger
 from custom_callbacks import ImageLoggingCallback
 
-# from neptune.new import ANONYMOUS_API_TOKEN
-
 
 class Trainer:
     def __init__(self):
-        self.architecture = LitSRCNN
-        self.help = '''
-                    -a, --architecture: architecture to use, e.g. srcnn 
-                    -h, --help: help
-                    '''
+        pass
+
+    def run(self, config):
+        self.parse_args(config)
+
         self.neptune_logger = NeptuneLogger(
-            # api_key=ANONYMOUS_API_TOKEN,
             project="skdbmk/superresolution",
             tags=["training", self.architecture.__name__],  # optional
         )
 
-    def run(self, config):
-        self.parse_args(config)
-        train_loader, val_loader = self.get_data()
-        model = self.architecture()
+        train_loader, val_loader = self.get_data(config)
+        model = self.architecture(**config['model_parameters'])
         trainer = pl.Trainer(accelerator="gpu", devices=1,
                              precision=16, logger=self.neptune_logger, callbacks=[
-                                 ImageLoggingCallback()], default_root_dir=f"model_checkpoints/{self.architecture.__name__}")
+                                 ImageLoggingCallback()],
+                             val_check_interval=0.25, max_epochs=5)
+
+        trainer.logger.experiment['config'] = config
+
         trainer.fit(model, train_loader, val_loader)
         # model.model.set_swish(memory_efficient=False)
         # model.to_onnx(
         #     f"model_{self.architecture.__name__}.onnx", export_params=True)
-        # TODO take a few random images from traindataset and create before -> after    
 
     def parse_args(self, config):
         architecture_type = config["architecture"]
@@ -50,11 +48,11 @@ class Trainer:
             print('Architecture not implemented')
             sys.exit()
 
-    def get_data(self):
+    def get_data(self, config):
         trainset = SRDataset(return_scaling_factor=False,
-                             perform_bicubic=True, patches="_patches192")
+                             perform_bicubic=config['pre_sampling'], patches="_patches192")
         validset = SRDataset(
-            train=False, return_scaling_factor=False, perform_bicubic=True)
+            train=False, return_scaling_factor=False, perform_bicubic=config['pre_sampling'])
 
         # TODO I observed small GPU Utilization probably n_workers could be set automatically?
         train_loader = DataLoader(trainset, batch_size=32)

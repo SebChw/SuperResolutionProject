@@ -58,7 +58,7 @@ class LitSRCNN(pl.LightningModule):
         return sr_X
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
         return optimizer
 
     def training_step(self, train_batch, batch_idx):
@@ -81,7 +81,7 @@ class LitSRCNN(pl.LightningModule):
     def validation_step(self, val_batch, batch_idx):
         x, y = val_batch
         sr_x = self.model(x)
-        loss = F.mse_loss(sr_x, x)
+        loss = self.loss(sr_x, y)
         self.log('val_loss', loss)
 
         self.valid_psnr(sr_x, y)
