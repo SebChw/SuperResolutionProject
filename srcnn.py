@@ -1,23 +1,14 @@
 from torch import nn
 import torch
 from torch.nn import functional as F
-from torch.utils.data import DataLoader
 import pytorch_lightning as pl
-from sr_dataset import SRDataset
 from torchmetrics import PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
-from pytorch_lightning.loggers import NeptuneLogger
-from custom_callbacks import ImageLoggingCallback
 
 from utils import cut_tensor_from_0_to_1
 from data_augmentation import DataAugmentation
 """
 Here we have very simple SR model and very basic Lightning pipeline
 """
-
-neptune_logger = NeptuneLogger(
-    project="skdbmk/superresolution",
-    tags=["training", "srcnn"],  # optional
-)
 
 
 class SRCNN(nn.Module):
@@ -100,27 +91,3 @@ class LitSRCNN(pl.LightningModule):
         # ssim seems not to work when y is float 16
         self.valid_ssim(cut_tensor_from_0_to_1(sr_x).to(torch.float32), y)
         self.log('valid_ssim', self.valid_ssim, on_step=True, on_epoch=True)
-
-
-if __name__ == '__main__':
-    # Necessary for multiprocessing to use this main guard
-    trainset = SRDataset(return_scaling_factor=False,
-                         perform_bicubic=True, patches="_patches192")
-    validset = SRDataset(
-        train=False, return_scaling_factor=False, perform_bicubic=True)
-
-    # TODO I observed small GPU Utilization probably n_workers could be set automatically?
-    # n_workers = 2 breaks my windows :)
-    train_loader = DataLoader(trainset, batch_size=32, num_workers=1)
-    # ! here we evaluate work on big images!
-    val_loader = DataLoader(validset, batch_size=1, num_workers=2)
-
-    # model
-    model = LitSRCNN()
-
-    # training
-    trainer = pl.Trainer(accelerator="gpu", devices=1, precision=16, logger=neptune_logger, callbacks=[
-                         ImageLoggingCallback()], val_check_interval=0.025)
-    trainer.fit(model, train_loader, val_loader)
-
-    # TODO take a few random images from traindataset and create before -> after
