@@ -5,6 +5,7 @@ from pathlib import Path
 import argparse
 import yaml
 
+
 def save_patch(img, box, path):
     x1,y1,x2,y2 = box
     if y2 <= img.shape[0] and x2 <= img.shape[1]:

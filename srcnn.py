@@ -1,48 +1,35 @@
 from torch import nn
 import torch
 from torch.nn import functional as F
-from torch.utils.data import DataLoader
 import pytorch_lightning as pl
-from sr_dataset import SRDataset
-from torchmetrics import PeakSignalNoiseRatio,StructuralSimilarityIndexMeasure
-from pytorch_lightning.loggers import NeptuneLogger
-from custom_callbacks import ImageLoggingCallback
+from torchmetrics import PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
 
 from utils import cut_tensor_from_0_to_1
 """
 Here we have very simple SR model and very basic Lightning pipeline
 """
 
-neptune_logger = NeptuneLogger(
-	project="skdbmk/superresolution",
-    tags=["training", "srcnn"],  # optional
-)
-
 class SRCNN(nn.Module):
-    def __init__(self, kernel_sizes = [9,1,5], num_filters = [64, 32]):
+    def __init__(self, kernel_sizes=[9, 1, 5], num_filters=[64, 32]):
         super().__init__()
         self.kernel_sizes = kernel_sizes
         self.num_filters = num_filters
         self.model = nn.Sequential(
-            nn.Conv2d(3, num_filters[0], kernel_size = kernel_sizes[0], padding="same"),
+            nn.Conv2d(
+                3, num_filters[0], kernel_size=kernel_sizes[0], padding="same"),
             nn.ReLU(),
-            nn.Conv2d(num_filters[0], num_filters[1], kernel_size = kernel_sizes[1]),
+            nn.Conv2d(num_filters[0], num_filters[1],
+                      kernel_size=kernel_sizes[1]),
             nn.ReLU(),
-            nn.Conv2d(num_filters[1], 3, kernel_size=kernel_sizes[2], padding="same")
+            nn.Conv2d(num_filters[1], 3,
+                      kernel_size=kernel_sizes[2], padding="same")
         )
-
 
     def forward(self, X):
         #! At this moment we assume that images have been put through bicubic interpolation
         #! and has the same size as expected result.
         return self.model(X)
 
-
-import torch
-from torch import nn
-from torch.nn import functional as F
-from torch.utils.data import DataLoader
-import pytorch_lightning as pl
 
 class LitSRCNN(pl.LightningModule):
 	def __init__(self):
@@ -56,7 +43,7 @@ class LitSRCNN(pl.LightningModule):
 		self.valid_ssim = StructuralSimilarityIndexMeasure()
 
 	def forward(self, x):
-        #This should be something like inference step, according to lightning documentation
+            # This should be something like inference step, according to lightning documentation
 		sr_X = self.model(x)
 		return sr_X
 
@@ -66,7 +53,7 @@ class LitSRCNN(pl.LightningModule):
 
 	def training_step(self, train_batch, batch_idx):
 		x, y = train_batch
-		sr_x = self.model(x)    
+		sr_x = self.model(x)
 		loss = F.mse_loss(sr_x, x)
 		self.log('train_loss', loss)
 
@@ -80,7 +67,7 @@ class LitSRCNN(pl.LightningModule):
 
 	def validation_step(self, val_batch, batch_idx):
 		x, y = val_batch
-		sr_x = self.model(x)    
+		sr_x = self.model(x)
 		loss = F.mse_loss(sr_x, x)
 		self.log('val_loss', loss)
 
@@ -88,21 +75,6 @@ class LitSRCNN(pl.LightningModule):
 		self.log('valid_psnr', self.valid_psnr, on_step=True, on_epoch=True)
 		#! ssim seems to work quite bad
 
-		self.valid_ssim(cut_tensor_from_0_to_1(sr_x).to(torch.float32), y) #ssim seems not to work when y is float 16
+		# ssim seems not to work when y is float 16
+		self.valid_ssim(cut_tensor_from_0_to_1(sr_x).to(torch.float32), y)
 		self.log('valid_ssim', self.valid_ssim, on_step=True, on_epoch=True)
-
-trainset = SRDataset(return_scaling_factor=False, perform_bicubic=True, patches="_patches192")
-validset = SRDataset(train=False, return_scaling_factor=False, perform_bicubic=True)
-
-#TODO I observed small GPU Utilization probably n_workers could be set automatically?
-train_loader = DataLoader(trainset, batch_size=32)
-val_loader = DataLoader(validset, batch_size=1) #! here we evaluate work on big images!
-
-# model
-model = LitSRCNN()
-
-# training
-trainer = pl.Trainer(accelerator="gpu", devices=1, precision=16, logger=neptune_logger, callbacks=[ImageLoggingCallback()], val_check_interval=0.25)
-trainer.fit(model, train_loader, val_loader)
-    
-#TODO take a few random images from traindataset and create before -> after
