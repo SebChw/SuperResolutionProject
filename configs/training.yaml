@@ -1,0 +1,2 @@
+architecture: srcnn
+batch_size: 32

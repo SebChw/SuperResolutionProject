@@ -1,5 +1,7 @@
 import sys
 import getopt
+import argparse
+import yaml
 
 from srcnn import LitSRCNN
 from sr_dataset import SRDataset
@@ -26,8 +28,8 @@ class Trainer:
             tags=["training", self.architecture.__name__],  # optional
         )
 
-    def run(self, argv):
-        self.parse_args(argv)
+    def run(self, config):
+        self.parse_args(config)
         train_loader, val_loader = self.get_data()
         model = self.architecture()
         trainer = pl.Trainer(accelerator="gpu", devices=1,
@@ -39,20 +41,14 @@ class Trainer:
         #     f"model_{self.architecture.__name__}.onnx", export_params=True)
         # TODO take a few random images from traindataset and create before -> after    
 
-    def parse_args(self, argv):
-        opts, _ = getopt.getopt(argv, shortopts="ha:", longopts=[
-                                "help", "architecture="])
-        for opt, arg in opts:
-            if opt in ("-h", "--help"):
-                print(self.help)
-                sys.exit()
-            elif opt in ("-a", "--architecture"):
-                architecture_type = arg
-                if architecture_type == 'srcnn':
-                    self.architecture = LitSRCNN
-                else:
-                    print('Architecture not implemented')
-                    sys.exit()
+    def parse_args(self, config):
+        architecture_type = config["architecture"]
+        self.batch_size = config["batch_size"]
+        if architecture_type == 'srcnn':
+            self.architecture = LitSRCNN
+        else:
+            print('Architecture not implemented')
+            sys.exit()
 
     def get_data(self):
         trainset = SRDataset(return_scaling_factor=False,
@@ -68,5 +64,13 @@ class Trainer:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog='Training script',
+        description='Runs training on a given architecture',
+    )
+    parser.add_argument('-c', '--config_path',
+                        default='configs/training.yaml', required=False)
+    args = parser.parse_args()
     Trainer = Trainer()
-    Trainer.run(sys.argv[1:])
+    with open(args.config_path, "r") as config:
+        Trainer.run(yaml.safe_load(config))
