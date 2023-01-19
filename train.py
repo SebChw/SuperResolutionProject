@@ -44,7 +44,7 @@ class Trainer:
         # input_sample = torch.randn((192,192,3))
         # model.to_onnx(
         #     f"model_{self.architecture.__name__}.onnx", input_sample, export_params=True)
-        # TODO take a few random images from traindataset and create before -> after    
+        # TODO take a few random images from traindataset and create before -> after
 
     def parse_args(self, config):
         architecture_type = config["architecture"]
@@ -56,13 +56,12 @@ class Trainer:
             sys.exit()
 
     def get_data(self, config):
-        trainset = SRDataset(return_scaling_factor=False,
-                             perform_bicubic=config['train_pre_sampling'],
+        trainset = SRDataset(perform_bicubic=config['train_pre_sampling'],
                              patches=config['patches'],
                              extension=config['train_extension'],
                              random_dataset_order=config['random_dataset_order'])
         validset = SRDataset(
-            train=False, return_scaling_factor=False,
+            train=False,
             perform_bicubic=config['val_pre_sampling'],
             extension=config['val_extension'],
             random_dataset_order=config['random_dataset_order'])

@@ -17,7 +17,7 @@ class ImageLoggingCallback(Callback):
         # We always take the same photo and take only one so that neptun doesn't cry
         # Not the most efficient solution
         validset = SRDataset(
-            train=False, return_scaling_factor=False, perform_bicubic=True)
+            train=False, bicubic_down=True)
         lr, hr = validset[2]
 
         # making it batch of size 1, it must be on the same device as model
