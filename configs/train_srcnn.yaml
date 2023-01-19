@@ -6,6 +6,7 @@ sampling_down: True
 sampling_up: False
 extension: png
 patches: _patches192
+scaling_factors: [2, 3, 4]
 
 model_parameters:
   augment_train: true
