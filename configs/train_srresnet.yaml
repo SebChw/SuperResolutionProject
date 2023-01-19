@@ -1,4 +1,4 @@
-architecture: srcnn
+architecture: srresnet
 batch_size: 32
 num_workers_train: 0
 num_workers_valid: 0
