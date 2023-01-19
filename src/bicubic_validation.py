@@ -16,7 +16,7 @@ run["algorithm"] = "BicubicInterpolation"
 params = {
     'bicubic_down': True,
     'bicubic_up': True,
-    "scaling_factors": [2],
+    "scaling_factors": [4],
     "downscalings": ["unknown"],
     "train": False
 }

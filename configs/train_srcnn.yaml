@@ -11,7 +11,7 @@ dataset_parameters:
   bicubic_down: True
   bicubic_up: True
   extension: png
-  scaling_factors: [2]
+  scaling_factors: [4]
 
 model_parameters:
   augment_train: true

@@ -34,7 +34,7 @@ class Trainer:
 
         trainer = pl.Trainer(accelerator="gpu", devices=1,
                              precision=16, logger=self.neptune_logger, callbacks=[
-                                 ImageLoggingCallback(config)], max_epochs=5)
+                                 ImageLoggingCallback(config)], max_epochs=10)
 
         trainer.logger.experiment['config'] = config
 
