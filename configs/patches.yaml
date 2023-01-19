@@ -6,3 +6,7 @@ prefix: DIV2K_train_ # based on this paths are created
 downscaling_types: [unknown] # based on this paths are created
 scaling_factors: [2,3,4] # based on this paths are created
 new_suffix: _patches # based on this paths are created
+
+perform_bicubic_interpolation: False
+
+extension: png

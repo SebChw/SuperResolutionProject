@@ -50,14 +50,21 @@ class Trainer:
 
     def get_data(self, config):
         trainset = SRDataset(return_scaling_factor=False,
-                             perform_bicubic=config['pre_sampling'], patches="_patches192")
+                             perform_bicubic=config['train_pre_sampling'],
+                             patches=config['patches'],
+                             extension=config['train_extension'],
+                             random_dataset_order=config['random_dataset_order'])
         validset = SRDataset(
-            train=False, return_scaling_factor=False, perform_bicubic=config['pre_sampling'])
+            train=False, return_scaling_factor=False,
+            perform_bicubic=config['val_pre_sampling'],
+            extension=config['val_extension'],
+            random_dataset_order=config['random_dataset_order'])
 
-        # TODO I observed small GPU Utilization probably n_workers could be set automatically?
-        train_loader = DataLoader(trainset, batch_size=32, shuffle=True)
-        # ! here we evaluate work on big images!
-        val_loader = DataLoader(validset, batch_size=1)
+        #! Don't set shuffle to True
+        train_loader = DataLoader(
+            trainset, batch_size=32, num_workers=0)  # ! On windows every worker loads everything to RAM so it is hard to have many withouth tricks
+
+        val_loader = DataLoader(validset, batch_size=1, num_workers=0)
         return train_loader, val_loader
 
 

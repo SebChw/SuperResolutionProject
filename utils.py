@@ -3,7 +3,8 @@ import pandas as pd
 import torch
 import numpy as np
 
-def collect_paths(data_path, prefix, downscalings=["unknown"], scaling_factors=[2,3,4], merge_inputs=False, patches = ""):
+
+def collect_paths(data_path, prefix, downscalings=["unknown"], scaling_factors=[2, 3, 4], merge_inputs=False, patches="", extension="png"):
     """This function iterates over all HR images and find corresponding LR images at the end it returns data frame
        Where this paths are connected
 
@@ -29,20 +30,22 @@ def collect_paths(data_path, prefix, downscalings=["unknown"], scaling_factors=[
         for file in y_folder.iterdir():
             img_id = file.stem
             for scaling_factor in scaling_factors:
-                inputs.append(x_folder / f"X{scaling_factor}{patches}" / f"{img_id}x{scaling_factor}.png")
+                inputs.append(
+                    x_folder / f"X{scaling_factor}{patches}" / f"{img_id}x{scaling_factor}.{extension}")
                 targets.append(file)
                 scalings.append(scaling_factor)
 
         if not merge_inputs:
             return pd.DataFrame(list(zip(inputs, targets, scalings)), columns=["input_path", "target_path", "scaling_factor"])
 
-        break #! since I have just 1 example available
-    inputs = [inputs[i:i+3] for i in range(0,len(inputs),3)]
-    targets = [targets[i] for i in range(0,len(targets),3)]
-    return pd.DataFrame(list(zip(inputs, targets)), columns = ["input_paths", "target_path"])
+        break  # ! since I have just 1 example available
+    inputs = [inputs[i:i+3] for i in range(0, len(inputs), 3)]
+    targets = [targets[i] for i in range(0, len(targets), 3)]
+    return pd.DataFrame(list(zip(inputs, targets)), columns=["input_paths", "target_path"])
 
-def cut_tensor_from_0_to_1(tensor:torch.tensor):
+
+def cut_tensor_from_0_to_1(tensor: torch.tensor):
     tensor[tensor < 0] = 0
     tensor[tensor > 1] = 1
-    
+
     return tensor
