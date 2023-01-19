@@ -9,16 +9,18 @@ from utils import cut_tensor_from_0_to_1
 
 
 class ImageLoggingCallback(Callback):
-    def __init__(self,):
+    def __init__(self, config):
         super().__init__()
         self.img_num = 0
+
+        self.validset = SRDataset(
+            train=False, **config['dataset_parameters'])
 
     def on_validation_epoch_end(self, trainer, pl_module):
         # We always take the same photo and take only one so that neptun doesn't cry
         # Not the most efficient solution
-        validset = SRDataset(
-            train=False, bicubic_down=True)
-        lr, hr = validset[2]
+        # 6th example from validation set seems to be hard
+        lr, hr = self.validset[6]
 
         # making it batch of size 1, it must be on the same device as model
         lr_to_hr = pl_module(torch.unsqueeze(lr, 0).to("cuda"))[0]

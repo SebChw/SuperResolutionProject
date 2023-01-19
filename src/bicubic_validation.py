@@ -1,4 +1,4 @@
-from torchmetrics import PeakSignalNoiseRatio,StructuralSimilarityIndexMeasure
+from torchmetrics import PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
 from sr_dataset import SRDataset
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -14,10 +14,11 @@ run = neptune.init_run()
 run["algorithm"] = "BicubicInterpolation"
 
 params = {
-    "perform_bicubic":True,
-    "scaling_factors":[2,3,4], 
-    "downscalings": ["unknown"], 
-    "train":False
+    'bicubic_down': True,
+    'bicubic_up': True,
+    "scaling_factors": [2],
+    "downscalings": ["unknown"],
+    "train": False
 }
 
 run["data/parameters"] = params
@@ -30,16 +31,16 @@ psnr = PeakSignalNoiseRatio()
 ssim = StructuralSimilarityIndexMeasure()
 
 for batch in tqdm(loader):
-    x,y = batch
-    psnr(x,y)
-    ssim(x,y)
+    x, y = batch
+    run["single_psnr"].append(psnr(x, y))
+    run['single_ssim'].append(ssim(x, y))
 
 final_psnr = psnr.compute()
 final_ssim = ssim.compute()
 
 print(final_psnr, final_ssim)
 
-run["psnr"] = final_psnr
-run["ssim"] = final_ssim
+run["mean_psnr"] = final_psnr
+run["mean_ssim"] = final_ssim
 
 run.stop()

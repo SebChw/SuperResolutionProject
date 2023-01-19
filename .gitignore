@@ -5,4 +5,4 @@ __pycache__
 .venv
 .vscode
 tips.md
-img0.png
+*.png

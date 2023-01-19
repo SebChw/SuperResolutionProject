@@ -70,12 +70,6 @@ class LitSRCNN(pl.LightningModule):
         loss = self.loss(sr_x, y)
         self.log('train_loss', loss)
 
-        #! not sure if we want this during training
-        # self.train_psnr(sr_x, y)
-        # self.log('train_psnr', self.train_psnr, on_step=True, on_epoch=False)
-        # self.train_ssim(sr_x.to(torch.float32), y)
-        # self.log('train_ssim', self.train_psnr, on_step=True, on_epoch=False)
-
         return loss
 
     def validation_step(self, val_batch, batch_idx):
@@ -86,8 +80,8 @@ class LitSRCNN(pl.LightningModule):
 
         self.valid_psnr(sr_x, y)
         self.log('valid_psnr', self.valid_psnr, on_step=True, on_epoch=True)
-        #! ssim seems to work quite bad
 
         # ssim seems not to work when y is float 16
+        # and also as we move beyond 0 and 1
         self.valid_ssim(cut_tensor_from_0_to_1(sr_x).to(torch.float32), y)
         self.log('valid_ssim', self.valid_ssim, on_step=True, on_epoch=True)

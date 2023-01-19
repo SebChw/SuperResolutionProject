@@ -2,36 +2,31 @@ from pathlib import Path
 from torch.utils.data import Dataset
 import pandas as pd
 import torchvision
-import cv2
 from torch.nn.functional import interpolate
 import torch
 import numpy as np
 from utils import collect_paths
+
 PREFIX = "DIV2K_"
 
 
 class SRDataset(Dataset):
     def __init__(self,  scaling_factors=[2, 3, 4], downscalings=["unknown"], train=True,
-                 transform=None, data_path="data", bicubic_down=False, bicubic_up=False,
-                 normalize=True, patches="", extension="png", random_dataset_order=False):
+                 data_path="data", bicubic_down=False, bicubic_up=False,
+                 normalize=True, patches="", extension="png"):
 
         self.scaling_factors = scaling_factors
         self.downscalings = downscalings
         self.train = train
-        self.transform = transform
         self.data_path = data_path
         self.normalize = normalize
         self.extension = extension
-        self.random_dataset_order = random_dataset_order
 
         self.bicubic_down = bicubic_down
         self.bicubic_up = bicubic_up
 
         self.patches = patches
         self.data_df = self.collect_paths()
-
-        if self.random_dataset_order:
-            self.data_df = self.data_df.sample(frac=1)
 
         self.data_df = self.data_df.to_numpy()
 
@@ -53,18 +48,18 @@ class SRDataset(Dataset):
     def __getitem__(self, idx):
         input_path, target_path, scaling = self.data_df[idx]
 
-        input_img, = self.load_image(
-            input_path)
+        target_img = self.load_image(target_path)
 
         if self.bicubic_down:
-            target_img = interpolate(
-                input_img.unsqueeze(0), size=input_img.shape[1:] // scaling, mode='bicubic')
+            size = np.array(target_img.shape[1:]) // scaling
+            input_img = interpolate(
+                target_img.unsqueeze(0), size=(size[0], size[1]), mode='bicubic')
         else:
-            target_img = self.load_image(target_path)
+            input_img = self.load_image(input_path).unsqueeze(0)
 
         if self.bicubic_up:
             input_img = interpolate(
-                input_img.unsqueeze(0), size=target_img.shape[1:], mode="bicubic")
+                input_img, size=target_img.shape[1:], mode="bicubic")
 
         if self.normalize:
             input_img /= 255
