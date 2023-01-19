@@ -88,7 +88,7 @@ if __name__ == "__main__":
         description='Runs training on a given architecture',
     )
     parser.add_argument('-c', '--config_path',
-                        default='configs/train_srcnn.yaml', required=False)
+                        default='configs/train_srresnet.yaml', required=False)
     args = parser.parse_args()
     Trainer = Trainer()
     with open(args.config_path, "r") as config:
