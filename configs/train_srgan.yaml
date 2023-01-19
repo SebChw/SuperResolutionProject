@@ -1,0 +1,16 @@
+architecture: srcnn
+batch_size: 32
+
+
+random_dataset_order: False
+train_pre_sampling: False
+train_extension: png
+val_pre_sampling: True
+val_extension: png
+patches: _patches192
+scaling_factors: [2]
+
+model_parameters:
+  feature_maps_gen: 192
+  feature_maps_disc: 192
+  scale_factor: 2
