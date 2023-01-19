@@ -27,6 +27,11 @@ class Trainer:
 
         train_loader, val_loader = self.get_data(config)
         model = self.architecture(**config['model_parameters'])
+
+        overfit_trainer = pl.Trainer(
+            accelerator="gpu", devices=1, precision=16, overfit_batches=1, max_epochs=100)
+        overfit_trainer.fit(model, train_loader, train_loader)
+
         trainer = pl.Trainer(accelerator="gpu", devices=1,
                              precision=16, logger=self.neptune_logger, callbacks=[
                                  ImageLoggingCallback()],
