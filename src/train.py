@@ -4,6 +4,8 @@ import yaml
 
 from srcnn import LitSRCNN
 from sr_dataset import SRDataset
+from pl_bolts.models.gans.srgan.srresnet_module import SRResNet
+from pl_bolts.models.gans.srgan.srgan_module import SRGAN
 
 from torch.utils.data import DataLoader
 
@@ -19,7 +21,9 @@ from custom_callbacks import ImageLoggingCallback
 
 class Trainer:
     def __init__(self):
-        self.architectures = {'srcnn': LitSRCNN}
+        self.architectures = {'srcnn': LitSRCNN,
+                              'srresnet': SRResNet,
+                              'srgan': SRGAN}
 
     def run(self, config):
         self.parse_args(config)
@@ -84,7 +88,7 @@ if __name__ == "__main__":
         description='Runs training on a given architecture',
     )
     parser.add_argument('-c', '--config_path',
-                        default='configs/train_srcnn.yaml', required=False)
+                        default='configs/train_srresnet.yaml', required=False)
     args = parser.parse_args()
     Trainer = Trainer()
     with open(args.config_path, "r") as config:

@@ -1,14 +1,18 @@
-architecture: srresnet
+architecture: srcnn
 batch_size: 32
+num_workers_train: 0
+num_workers_valid: 0
 
 
-random_dataset_order: False
-train_pre_sampling: False
-train_extension: png
-val_pre_sampling: True
-val_extension: png
+shuffle: True
 patches: _patches192
-scaling_factors: [2]
+
+dataset_parameters:
+  data_path: C:\data
+  bicubic_down: True
+  bicubic_up: True
+  extension: png
+  scaling_factors: [2]
 
 model_parameters:
   feature_maps: 192
