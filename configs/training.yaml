@@ -1,12 +1,10 @@
 architecture: srcnn
 batch_size: 32
 
-
 random_dataset_order: False
-train_pre_sampling: True
-train_extension: png
-val_pre_sampling: True
-val_extension: png
+sampling_down: True
+sampling_up: False
+extension: png
 patches: _patches192
 
 model_parameters:
