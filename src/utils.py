@@ -25,7 +25,9 @@ def collect_paths(data_path, prefix, downscalings=["unknown"], scaling_factors=[
     scalings = []
     for downscaling in downscalings:
         x_folder = Path(data_path) / Path(f"{prefix}LR_{downscaling}")
-        y_folder = Path(data_path) / Path(f"{prefix}HR{patches}")
+        y_folder = Path(
+            data_path) / Path(f"{prefix}HR{patches}") / Path(f"{prefix}HR{patches}")
+        print(f"Collecting paths from {x_folder} and {y_folder}")
 
         for file in y_folder.iterdir():
             img_id = file.stem
