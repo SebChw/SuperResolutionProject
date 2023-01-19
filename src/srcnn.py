@@ -58,7 +58,7 @@ class LitSRCNN(pl.LightningModule):
         return sr_X
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-4)
         return optimizer
 
     def training_step(self, train_batch, batch_idx):
