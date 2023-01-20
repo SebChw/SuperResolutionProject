@@ -13,9 +13,9 @@ def create_onnx(config):
         f"trained_models/{config['architecture']}.ckpt", strict=False)
     model.eval()
     data = SRDataset(scaling_factors=[2], train=False, data_path="data")
-    x, y = data[0]
+    _, y = data[0]
     
-    img =  Image.open("data/DIV2K_valid_LR_unknown/X2/0801x2.png")
+    img = Image.open("data/DIV2K_valid_LR_unknown/X2/0807x2.png")
     pil_images = [img]  # batch size is one
     transform = transforms.Compose([transforms.ToTensor()])
     x = torch.cat(
