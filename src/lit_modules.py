@@ -10,6 +10,7 @@ from data_augmentation import DataAugmentation
 class LitGenerator(pl.LightningModule):
     def __init__(self, model, model_parameters):
         super().__init__()
+        self.save_hyperparameters()
         self.augment_train = model_parameters["augment_train"]
         self.loss = model_parameters["loss"]
 
@@ -56,7 +57,7 @@ class LitGenerator(pl.LightningModule):
             loss_perc = self.perceptual_loss(sr_x, y)
             self.log("train_perceptual_loss", loss_perc)
 
-        total_loss = loss + loss_perc*0.001
+        total_loss = loss + loss_perc*0.005
 
         self.log("total_loss", total_loss)
         return total_loss
@@ -72,5 +73,5 @@ class LitGenerator(pl.LightningModule):
 
         # ssim seems not to work when y is float 16
         # and also as we move beyond 0 and 1
-        self.valid_ssim(minMaxTensor(sr_x).to(torch.float32), y)
+        self.valid_ssim(cut_tensor_from_0_to_1(sr_x).to(torch.float32), y)
         self.log('valid_ssim', self.valid_ssim, on_step=True, on_epoch=True)

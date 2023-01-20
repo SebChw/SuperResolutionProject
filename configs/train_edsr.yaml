@@ -21,3 +21,4 @@ model_parameters:
   res_scale: 1
   augment_train: false
   loss: L2
+  perceptual_loss: True

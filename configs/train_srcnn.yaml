@@ -1,6 +1,6 @@
 architecture: srcnn
 batch_size: 32
-num_workers_train: 0
+num_workers_train: 4
 num_workers_valid: 0
 
 shuffle: True

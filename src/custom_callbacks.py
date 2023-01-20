@@ -29,7 +29,7 @@ class ImageLoggingCallback(Callback):
         lr_filled = torch.zeros((3, hr.shape[1], lr.shape[2]))
         lr_filled[:, :lr.shape[1], :] = lr
 
-        lr_to_hr = minMaxTensor(lr_to_hr.unsqueeze(0))[0]
+        lr_to_hr = cut_tensor_from_0_to_1(lr_to_hr)
 
         grid = torchvision.utils.make_grid(torch.cat([lr_filled, lr_to_hr.to(
             "cpu"), hr], axis=2))  # lr_to_hr must be on the same device as the rest

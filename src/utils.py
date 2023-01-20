@@ -52,8 +52,9 @@ def cut_tensor_from_0_to_1(tensor: torch.tensor):
 
 
 def minMaxTensor(tensor: torch.tensor):
+    #! Probably there is bug in here
     batch_size = tensor.shape[0]
-    min = tensor.view(batch_size, -1).min(1, keepdim=True)[0][:,:,None,None]
-    max = tensor.view(batch_size, -1).max(1, keepdim=True)[0][:,:,None,None]
+    min = tensor.view(batch_size, -1).min(1, keepdim=True)[0][:, :, None, None]
+    max = tensor.view(batch_size, -1).max(1, keepdim=True)[0][:, :, None, None]
 
     return (tensor - max) / (min-max)

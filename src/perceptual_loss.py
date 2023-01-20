@@ -1,4 +1,5 @@
-from torchvision.models import vgg16, VGG16_Weights
+
+from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
 import torch
 from torchvision import transforms
 import torch.nn as nn
@@ -17,38 +18,21 @@ class PerceptualLoss(nn.Module):
                 0.229, 0.224, 0.225])  # values from PyTorch docs
         ])
 
-        self.extractor = vgg16(
-            weights=VGG16_Weights.IMAGENET1K_FEATURES).features
+        self.extractor = efficientnet_b0(
+            weights=EfficientNet_B0_Weights.IMAGENET1K_V1).features
 
         i = 0
 
         self.model = nn.Sequential()
 
-        use_maxpool = True
-
-        end_layer = 16
+        end_layer = 3
 
         for layer in self.extractor:
-
             if i > end_layer:
                 break
 
-            if isinstance(layer, nn.Conv2d):
-                name = "conv_" + str(i)
-                self.model.add_module(name, layer)
+            self.model.add_module(f"layer{i}", layer)
 
-            if isinstance(layer, nn.ReLU):
-                name = "relu_" + str(i)
-                self.model.add_module(name, layer)
-
-            if isinstance(layer, nn.MaxPool2d):
-                name = "pool_" + str(i)
-                if use_maxpool:
-                    self.model.add_module(name, layer)
-                else:
-                    avgpool = nn.AvgPool2d(
-                        kernel_size=layer.kernel_size, stride=layer.stride, padding=layer.padding)
-                    self.model.add_module(name, avgpool)
             i += 1
 
         self.model = self.model.to("cuda")
@@ -57,7 +41,12 @@ class PerceptualLoss(nn.Module):
             p.requires_grad = False
 
     def forward(self, sr_x, y):
-        sr_x_features = self.model(self.transform(minMaxTensor(sr_x)))
-        y_features = self.model(self.transform(minMaxTensor(y)))
+        sr_x_features = self.model(self.transform(sr_x))
+        y_features = self.model(self.transform(y))
+
+        loss = F.mse_loss(sr_x_features, y_features)
+
+        if torch.isnan(loss):
+            print("NAN!")
 
         return F.mse_loss(sr_x_features, y_features)
