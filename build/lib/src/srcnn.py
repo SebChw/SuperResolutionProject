@@ -6,7 +6,7 @@ Here we have very simple SR model and very basic Lightning pipeline
 
 
 class SRCNN(nn.Module):
-    def __init__(self, kernel_sizes=[9, 1, 5], num_filters=[64, 32], model_parameters=None):
+    def __init__(self, kernel_sizes=[9, 1, 5], num_filters=[64, 32]):
         super().__init__()
         self.kernel_sizes = kernel_sizes
         self.num_filters = num_filters
