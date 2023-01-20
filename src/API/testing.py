@@ -4,7 +4,8 @@ import argparse
 import yaml
 import torch
 import cv2
-
+from PIL import Image
+from torchvision import transforms
 
 def create_onnx(config):
     model = get_edsr(config['model_parameters'])
@@ -13,8 +14,15 @@ def create_onnx(config):
     model.eval()
     data = SRDataset(scaling_factors=[2], train=False, data_path="data")
     x, y = data[0]
-    new = model(x.unsqueeze(0))
-    cv2.imshow("x", x.permute(1, 2, 0).numpy())
+    
+    img =  Image.open("data/DIV2K_valid_LR_unknown/X2/0801x2.png")
+    pil_images = [img]  # batch size is one
+    transform = transforms.Compose([transforms.ToTensor()])
+    x = torch.cat(
+        [transform(i).unsqueeze(0) for i in pil_images])
+    # x = x.unsqueeze(0)
+    new = model(x)
+    # cv2.imshow("x", x.permute(0, 2, 3, 1).numpy())
     cv2.imshow("y", y.permute(1, 2, 0).numpy())
     cv2.imshow("new", new.permute(0, 2, 3, 1).squeeze().detach().numpy())
     cv2.waitKey(0)
