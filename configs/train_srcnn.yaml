@@ -1,7 +1,7 @@
 architecture: srcnn
 batch_size: 32
-num_workers_train: 4
-num_workers_valid: 4
+num_workers_train: 0
+num_workers_valid: 0
 
 shuffle: True
 patches: _patches192
@@ -15,5 +15,6 @@ dataset_parameters:
 
 model_parameters:
   augment_train: false
-  loss: L2
+  loss: L1
+  perceptual_loss: True
 

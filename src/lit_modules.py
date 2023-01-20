@@ -2,7 +2,7 @@ import torch
 from torch.nn import functional as F
 import pytorch_lightning as pl
 from torchmetrics import PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
-
+from perceptual_loss import PerceptualLoss
 from utils import cut_tensor_from_0_to_1, minMaxTensor
 from data_augmentation import DataAugmentation
 
@@ -28,6 +28,11 @@ class LitGenerator(pl.LightningModule):
         else:
             self.loss = F.l1_loss
 
+        if model_parameters["perceptual_loss"]:
+            self.perceptual_loss = PerceptualLoss()
+        else:
+            self.perceptual_loss = None
+
     def forward(self, x):
         # This should be something like inference step, according to lightning documentation
         sr_X = self.model(x)
@@ -46,7 +51,15 @@ class LitGenerator(pl.LightningModule):
         loss = self.loss(sr_x, y)
         self.log('train_loss', loss)
 
-        return loss
+        loss_perc = 0
+        if self.perceptual_loss:
+            loss_perc = self.perceptual_loss(sr_x, y)
+            self.log("train_perceptual_loss", loss_perc)
+
+        total_loss = loss + loss_perc*0.001
+
+        self.log("total_loss", total_loss)
+        return total_loss
 
     def validation_step(self, val_batch, batch_idx):
         x, y = val_batch
