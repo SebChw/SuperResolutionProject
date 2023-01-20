@@ -14,6 +14,6 @@ dataset_parameters:
   scaling_factors: [4]
 
 model_parameters:
-  augment_train: true
+  augment_train: false
   loss: L2
 

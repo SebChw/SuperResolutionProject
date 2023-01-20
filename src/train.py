@@ -2,11 +2,12 @@ import sys
 import argparse
 import yaml
 
-from srcnn import LitSRCNN
+from srcnn import get_srcnn
+from edsr import get_edsr
 from sr_dataset import SRDataset
-from pl_bolts.models.gans.srgan.srresnet_module import SRResNet
-from pl_bolts.models.gans.srgan.srgan_module import SRGAN
-
+# from pl_bolts.models.gans.srgan.srresnet_module import SRResNet
+# from pl_bolts.models.gans.srgan.srgan_module import SRGAN
+import torch
 from torch.utils.data import DataLoader
 
 import pytorch_lightning as pl
@@ -14,25 +15,30 @@ from pytorch_lightning.loggers import NeptuneLogger
 from custom_callbacks import ImageLoggingCallback
 
 
+import lovely_tensors as lt
+lt.monkey_patch()
+
 # liniowa interpolacja nie ma sensu
 # Zrobic ewaluacje przed sama siecia.
 # UCZYC TYLKO X2
 # Nawet dla presamplingu tylko X2
 
+
 class Trainer:
     def __init__(self):
-        self.architectures = {'srcnn': LitSRCNN,
-                              'srresnet': SRResNet,
-                              'srgan': SRGAN}
+        self.architectures = {'srcnn': get_srcnn,
+                              'edsr': get_edsr, }
+        # 'srresnet': SRResNet,
+        # 'srgan': SRGAN}
 
     def run(self, config):
         self.parse_args(config)
         self.neptune_logger = NeptuneLogger(
             project="skdbmk/superresolution",
-            tags=["training", self.architecture.__name__],  # optional
+            tags=["training", config['architecture']],  # optional
         )
         train_loader, val_loader = self.get_data(config)
-        self.model = self.architecture(**config['model_parameters'])
+        self.model = self.architecture(config['model_parameters'])
 
         # self.overfit_one_batch(config)
 
@@ -42,6 +48,7 @@ class Trainer:
 
         trainer.logger.experiment['config'] = config
 
+        torch.cuda.empty_cache()
         trainer.fit(self.model, train_loader, val_loader)
         # input_sample = torch.randn((192,192,3))
         # model.to_onnx(
@@ -88,7 +95,7 @@ if __name__ == "__main__":
         description='Runs training on a given architecture',
     )
     parser.add_argument('-c', '--config_path',
-                        default='configs/train_srresnet.yaml', required=False)
+                        default='configs/train_edsr.yaml', required=False)
     args = parser.parse_args()
     Trainer = Trainer()
     with open(args.config_path, "r") as config:

@@ -26,8 +26,8 @@ class ImageLoggingCallback(Callback):
         lr_to_hr = pl_module(torch.unsqueeze(lr, 0).to("cuda"))[0]
 
         # it is probably the other way around as in opencv
-        lr_filled = torch.zeros((3, lr.shape[1], hr.shape[2]))
-        lr_filled[:, :, :hr.shape[2]] = lr
+        lr_filled = torch.zeros((3, hr.shape[1], lr.shape[2]))
+        lr_filled[:, :lr.shape[1], :] = lr
 
         lr_to_hr = cut_tensor_from_0_to_1(lr_to_hr)
 
