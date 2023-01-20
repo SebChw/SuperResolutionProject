@@ -3,7 +3,7 @@ from torch.nn import functional as F
 import pytorch_lightning as pl
 from torchmetrics import PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
 
-from utils import cut_tensor_from_0_to_1
+from utils import cut_tensor_from_0_to_1, minMaxTensor
 from data_augmentation import DataAugmentation
 
 
@@ -59,5 +59,5 @@ class LitGenerator(pl.LightningModule):
 
         # ssim seems not to work when y is float 16
         # and also as we move beyond 0 and 1
-        self.valid_ssim(cut_tensor_from_0_to_1(sr_x).to(torch.float32), y)
+        self.valid_ssim(minMaxTensor(sr_x).to(torch.float32), y)
         self.log('valid_ssim', self.valid_ssim, on_step=True, on_epoch=True)
