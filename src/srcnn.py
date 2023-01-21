@@ -25,8 +25,3 @@ class SRCNN(nn.Module):
         #! At this moment we assume that images have been put through bicubic interpolation
         #! and has the same size as expected result.
         return self.model(X)
-
-
-def get_srcnn(model_parameters):
-    model = SRCNN()
-    return LitGenerator(model, model_parameters)
