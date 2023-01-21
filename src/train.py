@@ -2,13 +2,12 @@ import sys
 import argparse
 import yaml
 
-from srcnn import get_srcnn
-from edsr import get_edsr
+from srcnn import SRCNN
+from edsr import EDSR
 from sr_dataset import SRDataset
-# from pl_bolts.models.gans.srgan.srresnet_module import SRResNet
-# from pl_bolts.models.gans.srgan.srgan_module import SRGAN
 import torch
 from torch.utils.data import DataLoader
+from lit_modules import LitGenerator, LitSRGan
 
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import NeptuneLogger
@@ -26,10 +25,8 @@ lt.monkey_patch()
 
 class Trainer:
     def __init__(self):
-        self.architectures = {'srcnn': get_srcnn,
-                              'edsr': get_edsr, }
-        # 'srresnet': SRResNet,
-        # 'srgan': SRGAN}
+        self.architectures = {'srcnn': SRCNN,
+                              'edsr': EDSR, }
 
     def run(self, config):
         self.parse_args(config)
@@ -38,7 +35,24 @@ class Trainer:
             tags=["training", config['architecture']],  # optional
         )
         train_loader, val_loader = self.get_data(config)
-        self.model = self.architecture(config['model_parameters'])
+
+        self.checkpoint_path = config['model_checkpoint']
+        self.model_parameters = config['model_parameters']
+        if self.checkpoint_path:
+            checkpoint = torch.load(self.checkpoint_path)
+            # ! weights are loaded
+            if 'model' in checkpoint['hyper_parameters']:
+                architecture = checkpoint['hyper_parameters']['model']
+            else:
+                architecture = checkpoint['hyper_parameters']['generator']
+        else:
+            architecture = self.architecture(
+                model_parameters=self.model_parameters)
+
+        if config['use_gan']:
+            self.model = LitSRGan(architecture, self.model_parameters)
+        else:
+            self.model = LitGenerator(architecture, self.model_parameters)
 
         # self.overfit_one_batch(config)
 
@@ -50,10 +64,6 @@ class Trainer:
 
         torch.cuda.empty_cache()
         trainer.fit(self.model, train_loader, val_loader)
-        # input_sample = torch.randn((192,192,3))
-        # model.to_onnx(
-        #     f"model_{self.architecture.__name__}.onnx", input_sample, export_params=True)
-        # TODO take a few random images from traindataset and create before -> after
 
     def parse_args(self, config):
         architecture_type = config["architecture"]

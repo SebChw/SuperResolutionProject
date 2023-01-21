@@ -4,10 +4,6 @@ import math
 
 from lit_modules import LitGenerator
 
-def get_edsr(model_parameters):
-    model = EDSR(model_parameters)
-    return LitGenerator(model, model_parameters)
-
 
 def default_conv(in_channels, out_channels, kernel_size, bias=True):
     return nn.Conv2d(
