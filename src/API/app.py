@@ -29,7 +29,7 @@ class ModelServer:
     def define_models(self):
         self.modelEDSR = get_edsr(model_parameters=self.edsrx2_params)
         self.modelEDSR = self.modelEDSR.load_from_checkpoint(
-            "trained_models/edsrx2.ckpt", strict=False).eval()
+            "trained_models/edsrx2CD.ckpt", strict=False).eval()
         # self.modelSRCNN = get_srcnn(model_parameters=self.srcnn_params)
         # self.modelSRCNN = self.modelSRCNN.load_from_checkpoint(
         #     "trained_models/srcnn.ckpt", strict=False).eval()
