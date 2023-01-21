@@ -17,4 +17,3 @@ src/train.py
 src/utils.py
 src/API/__init__.py
 src/API/app.py
-src/API/create_onnx.py
