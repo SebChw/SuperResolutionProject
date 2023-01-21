@@ -92,57 +92,58 @@ class LitSRGan(LitGenerator):
 
         self.adversarial_loss = nn.BCEWithLogitsLoss()
 
-    def training_step(self, train_batch, batch_idx, optimizer_idx):
+    def training_step(self, train_batch, batch_idx):  # , optimizer_idx):
         x, y = train_batch
 
         if self.augment_train:
             x, y = self.augmentations(x, y)
 
         # generate images
-        sr_x = self.generator(x)
+       # sr_x = self.generator(x)
 
         # train generator
-        if optimizer_idx == 0:
-            discriminator_d = self.discriminator(self(sr_x))
-            # ground truth result (ie: all fake)
-            # put on GPU because we created this tensor inside training_loop
-            valid = torch.ones_like(discriminator_d)
+        # if optimizer_idx == 0:
+        #     discriminator_d = self.discriminator(self(sr_x))
+        #     # ground truth result (ie: all fake)
+        #     # put on GPU because we created this tensor inside training_loop
+        #     valid = torch.ones_like(discriminator_d)
 
-            # adversarial loss is binary cross-entropy
-            g_loss = self.adversarial_loss(discriminator_d, valid)
-            self.log("g_loss", g_loss, prog_bar=True)
+        #     # adversarial loss is binary cross-entropy
+        #     g_loss = self.adversarial_loss(discriminator_d, valid)
+        #     self.log("g_loss", g_loss, prog_bar=True)
 
-            reconstruction_loss = self.get_training_loss(sr_x, y)
+        #     reconstruction_loss = self.get_training_loss(sr_x, y)
 
-            return g_loss + reconstruction_loss
+        #     return g_loss + reconstruction_loss
 
         # train discriminator
-        if optimizer_idx == 1:
+        # if optimizer_idx == 1:
             # Measure discriminator's ability to classify real from generated samples
 
-            discrminator_real = self.discriminator(y)
+        discrminator_real = self.discriminator(y)
 
-            # how well can it label as real?
-            valid = torch.ones_like(discrminator_real)
+        # how well can it label as real?
+        valid = torch.ones_like(discrminator_real)
 
-            real_loss = self.adversarial_loss(discrminator_real, valid)
+        real_loss = self.adversarial_loss(discrminator_real, valid)
 
-            discriminator_fake = self.discriminator(
-                sr_x.detach())  # don't calculate generator gradient
-            # how well can it label as fake?
-            fake = torch.zeros_like(discriminator_fake)
+        # discriminator_fake = self.discriminator(
+        #     sr_x.detach())  # don't calculate generator gradient
+        # # how well can it label as fake?
+        # fake = torch.zeros_like(discriminator_fake)
 
-            fake_loss = self.adversarial_loss(discriminator_fake, fake)
+        # fake_loss = self.adversarial_loss(discriminator_fake, fake)
 
-            # discriminator loss is the average of these
-            d_loss = (real_loss + fake_loss) / 2
-            self.log("d_loss", d_loss, prog_bar=True)
-            return d_loss
+        # # discriminator loss is the average of these
+        # d_loss = (real_loss + fake_loss) / 2
+        d_loss = real_loss
+        self.log("d_loss", d_loss, prog_bar=True)
+        return d_loss
 
     def configure_optimizers(self):
         opt_g = torch.optim.Adam(
             self.generator.parameters(), lr=1e-4)
         opt_d = torch.optim.Adam(
-            self.discriminator.parameters(), lr=1e-5)
+            self.discriminator.parameters(), lr=1e-3)
 
-        return [opt_g, opt_d], []
+        return opt_d
