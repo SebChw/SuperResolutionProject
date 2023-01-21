@@ -1,5 +1,5 @@
 from pytorch_lightning.callbacks import Callback
-from sr_dataset import SRDataset
+from src.sr_dataset import SRDataset
 import torch
 import torchvision
 from pathlib import Path

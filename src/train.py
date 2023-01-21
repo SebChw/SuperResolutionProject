@@ -58,12 +58,13 @@ class Trainer:
 
         trainer = pl.Trainer(accelerator="gpu", devices=1,
                              precision=16, logger=self.neptune_logger, callbacks=[
-                                 ImageLoggingCallback(config)], max_epochs=10)
+                                 ImageLoggingCallback(config)], max_epochs=3)
 
         trainer.logger.experiment['config'] = config
 
         torch.cuda.empty_cache()
         trainer.fit(self.model, train_loader, val_loader)
+        torch.save(self.model.state_dict(), "model.pt")
 
     def parse_args(self, config):
         architecture_type = config["architecture"]
