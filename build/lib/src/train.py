@@ -44,12 +44,13 @@ class Trainer:
 
         trainer = pl.Trainer(accelerator="gpu", devices=1,
                              precision=16, logger=self.neptune_logger, callbacks=[
-                                 ImageLoggingCallback(config)], max_epochs=10)
+                                 ImageLoggingCallback(config)], max_epochs=3)
 
         trainer.logger.experiment['config'] = config
 
         torch.cuda.empty_cache()
         trainer.fit(self.model, train_loader, val_loader)
+        torch.save(self.model.state_dict(), "model.pt")
 
     def parse_args(self, config):
         architecture_type = config["architecture"]
@@ -91,7 +92,7 @@ if __name__ == "__main__":
         description='Runs training on a given architecture',
     )
     parser.add_argument('-c', '--config_path',
-                        default='configs/train_edsr.yaml', required=False)
+                        default='configs/train_srcnn.yaml', required=False)
     args = parser.parse_args()
     Trainer = Trainer()
     with open(args.config_path, "r") as config:
