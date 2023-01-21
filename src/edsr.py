@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import math
 
-from lit_modules import LitGenerator
+from src.lit_modules import LitGenerator
 
 
 def default_conv(in_channels, out_channels, kernel_size, bias=True):

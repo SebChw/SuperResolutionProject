@@ -1,5 +1,5 @@
 from torchmetrics import PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
-from sr_dataset import SRDataset
+from src.sr_dataset import SRDataset
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import neptune.new as neptune

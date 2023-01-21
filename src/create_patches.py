@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from utils import collect_paths
+from src.utils import collect_paths
 from pathlib import Path
 import argparse
 import yaml

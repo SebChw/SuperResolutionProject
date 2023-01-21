@@ -1,5 +1,5 @@
 from torch import nn
-from lit_modules import LitGenerator
+from src.lit_modules import LitGenerator
 """
 Here we have very simple SR model and very basic Lightning pipeline
 """
