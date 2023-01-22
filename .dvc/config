@@ -1,6 +1,0 @@
-[core]
-    remote = gdrive
-[cache]
-    type = "hardlink,symlink"
-['remote "gdrive"']
-    url = gdrive://1H5fP1QgalcKmUn99NDIqqCCKSS-j3V35
