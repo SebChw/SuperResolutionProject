@@ -13,7 +13,7 @@ ray.init(address="auto")
 serve.start(detached=True)
 
 
-@serve.deployment(route_prefix="/")
+@serve.deployment
 @serve.ingress(app)
 class ModelServer:
     def __init__(self):
