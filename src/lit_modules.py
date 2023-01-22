@@ -141,8 +141,8 @@ class LitSRGan(LitGenerator):
 
     def configure_optimizers(self):
         opt_g = torch.optim.Adam(
-            self.generator.parameters(), lr=1e-4)
+            self.generator.parameters(), lr=1e-3)
         opt_d = torch.optim.Adam(
-            self.discriminator.parameters(), lr=1e-5)
+            self.discriminator.parameters(), lr=1e-3)
 
         return [opt_g, opt_d], []
