@@ -4,7 +4,7 @@ import torch
 from torchvision import transforms
 import torch.nn as nn
 
-from src.utils import minMaxTensor
+from torchsr.utils import minMaxTensor
 from torch.nn import functional as F
 
 

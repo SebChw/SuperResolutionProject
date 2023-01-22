@@ -3,8 +3,8 @@ from torch.nn import functional as F
 import pytorch_lightning as pl
 from torchmetrics import PeakSignalNoiseRatio, StructuralSimilarityIndexMeasure
 from src.perceptual_loss import PerceptualLoss
-from src.utils import cut_tensor_from_0_to_1, minMaxTensor
-from src.data_augmentation import DataAugmentation
+from torchsr.utils import cut_tensor_from_0_to_1, minMaxTensor
+from torchsr.data.data_augmentation import DataAugmentation
 
 
 class LitGenerator(pl.LightningModule):

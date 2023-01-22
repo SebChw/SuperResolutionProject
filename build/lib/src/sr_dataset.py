@@ -5,7 +5,7 @@ import torchvision
 from torch.nn.functional import interpolate
 import torch
 import numpy as np
-from src.utils import collect_paths
+from torchsr.utils import collect_paths
 
 PREFIX = "DIV2K_"
 

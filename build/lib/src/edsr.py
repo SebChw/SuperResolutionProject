@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import math
 
-from src.lit_modules import LitGenerator
+from torchsr.models.lit_modules import LitGenerator
 
 def get_edsr(model_parameters):
     model = EDSR(model_parameters)
